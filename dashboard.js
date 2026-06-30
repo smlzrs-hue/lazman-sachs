@@ -51,11 +51,11 @@
   const pie = document.getElementById('pieChart');
   const legend = document.getElementById('pieLegend');
   const slices = [
-    { label: 'Trading Desk', value: 38, color: '#d4af37' },
-    { label: 'Wealth (Mis)mgmt', value: 27, color: '#5b8cff' },
-    { label: 'Frozen Assets 🍦', value: 18, color: '#3ad29f' },
-    { label: 'Bass Derivatives 🎸', value: 11, color: '#ff6b6b' },
-    { label: 'Vibes-as-a-Service', value: 6, color: '#c084fc' },
+    { label: 'Trading Desk', value: 38, color: '#092c61' },
+    { label: 'Wealth (Mis)mgmt', value: 27, color: '#446ea6' },
+    { label: 'Frozen Assets 🍦', value: 18, color: '#7297c5' },
+    { label: 'Bass Derivatives 🎸', value: 11, color: '#a9c1dd' },
+    { label: 'Vibes-as-a-Service', value: 6, color: '#5b7282' },
   ];
   if (pie) {
     const cx = 100, cy = 100, r = 78;
@@ -72,7 +72,7 @@
       const path = document.createElementNS(ns, 'path');
       path.setAttribute('d', `M${cx},${cy} L${x0.toFixed(2)},${y0.toFixed(2)} A${r},${r} 0 ${large} 1 ${x1.toFixed(2)},${y1.toFixed(2)} Z`);
       path.setAttribute('fill', s.color);
-      path.setAttribute('stroke', '#111726');
+      path.setAttribute('stroke', '#ffffff');
       path.setAttribute('stroke-width', '2');
       path.style.transition = 'transform 0.2s';
       path.style.transformOrigin = '100px 100px';
@@ -82,20 +82,21 @@
     });
     // donut hole
     const hole = document.createElementNS(ns, 'circle');
-    hole.setAttribute('cx', cx); hole.setAttribute('cy', cy); hole.setAttribute('r', 38);
-    hole.setAttribute('fill', '#111726');
+    hole.setAttribute('cx', cx); hole.setAttribute('cy', cy); hole.setAttribute('r', 40);
+    hole.setAttribute('fill', '#ffffff');
     pie.appendChild(hole);
     const t1 = document.createElementNS(ns, 'text');
-    t1.setAttribute('x', cx); t1.setAttribute('y', cy - 2);
-    t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('fill', '#e8edf7');
-    t1.setAttribute('font-size', '20'); t1.setAttribute('font-weight', '800');
+    t1.setAttribute('x', cx); t1.setAttribute('y', cy - 1);
+    t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('fill', '#121212');
+    t1.setAttribute('font-size', '21'); t1.setAttribute('font-weight', '500');
+    t1.setAttribute('font-family', 'Basis Mono, monospace');
     t1.textContent = '$884M';
     pie.appendChild(t1);
     const t2 = document.createElementNS(ns, 'text');
     t2.setAttribute('x', cx); t2.setAttribute('y', cy + 16);
-    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('fill', '#8a98b8');
-    t2.setAttribute('font-size', '10');
-    t2.textContent = 'total revenue';
+    t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('fill', '#5b7282');
+    t2.setAttribute('font-size', '9.5'); t2.setAttribute('letter-spacing', '0.5');
+    t2.textContent = 'TOTAL REVENUE';
     pie.appendChild(t2);
 
     slices.forEach((s) => {

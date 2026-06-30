@@ -74,7 +74,7 @@
     player.vy = -12.2;
     player.grounded = false;
     player.spin = 1;
-    for (let i = 0; i < 8; i++) particles.push(puff(player.x + 4, GROUND, '#5b8cff'));
+    for (let i = 0; i < 8; i++) particles.push(puff(player.x + 4, GROUND, '#7297c5'));
   }
 
   // ---------------- session control ----------------
@@ -102,9 +102,9 @@
     state = 'dead';
     shakeT = 18;
     const d = DEATHS[Math.floor(Math.random() * DEATHS.length)];
-    for (let i = 0; i < 26; i++) particles.push(puff(player.x, player.y - 10, '#ffc857'));
+    for (let i = 0; i < 26; i++) particles.push(puff(player.x, player.y - 10, '#b2570d'));
     banner.innerHTML = `<div><span class="big">📉 ${d.big}</span>${d.sub}` +
-      `<small>Final profit: <b style="color:#d4af37">$${score.toLocaleString()}</b></small>` +
+      `<small>Final profit: <b style="color:#092c61">$${score.toLocaleString()}</b></small>` +
       `<small>press <b>W</b> to try again · <b>Esc</b> to go back to the spreadsheet</small></div>`;
     banner.classList.remove('hidden');
   }
@@ -208,7 +208,7 @@
 
     // money particles for flair while running fast
     if (speedMul > 1.4 && frame % 6 === 0) {
-      const p = puff(player.x + 10, player.y - 20, '#3ad29f');
+      const p = puff(player.x + 10, player.y - 20, '#398025');
       p.vx = -speed * 0.6; p.vy = -1; particles.push(p);
     }
     updateParticles();
@@ -227,25 +227,16 @@
     ctx.save();
     if (shakeT > 0) ctx.translate((Math.random() - 0.5) * shakeT, (Math.random() - 0.5) * shakeT);
 
-    // sky
+    // sky — clean Goldman white-to-mist
     const g = ctx.createLinearGradient(0, 0, 0, H);
-    g.addColorStop(0, '#0b1022');
-    g.addColorStop(1, '#05070f');
+    g.addColorStop(0, '#ffffff');
+    g.addColorStop(1, '#eef2f6');
     ctx.fillStyle = g;
     ctx.fillRect(-20, -20, W + 40, H + 40);
 
-    // stars
-    ctx.fillStyle = 'rgba(255,255,255,0.5)';
-    for (let i = 0; i < 30; i++) {
-      const x = (i * 53 + frame * 0.2) % W;
-      ctx.globalAlpha = 0.2 + ((i * 7) % 5) / 8;
-      ctx.fillRect(x, 14 + ((i * 31) % 90), 1.6, 1.6);
-    }
-    ctx.globalAlpha = 1;
-
     // clouds (Wall St "smoke")
     clouds.forEach((c) => {
-      ctx.fillStyle = 'rgba(91,140,255,0.10)';
+      ctx.fillStyle = 'rgba(114,151,197,0.14)';
       roundRect(c.x, c.y, c.w, 14, 7); ctx.fill();
     });
 
@@ -253,13 +244,13 @@
     drawSkyline();
 
     // ground
-    ctx.fillStyle = '#0e1422';
+    ctx.fillStyle = '#f2f5f7';
     ctx.fillRect(-20, GROUND, W + 40, H - GROUND + 20);
-    ctx.strokeStyle = '#d4af37';
+    ctx.strokeStyle = '#092c61';
     ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(-20, GROUND); ctx.lineTo(W + 20, GROUND); ctx.stroke();
     // moving dollar lane markers
-    ctx.fillStyle = 'rgba(212,175,55,0.5)';
+    ctx.fillStyle = 'rgba(91,114,130,0.55)';
     ctx.font = '12px Inter';
     for (let i = 0; i < 12; i++) {
       const x = (i * 70 - (dist % 70));
@@ -274,8 +265,8 @@
       ctx.font = (o.h + 6) + 'px serif';
       ctx.fillText(o.e, o.x + o.w / 2, oy + o.h / 2);
       if (o.label) {
-        ctx.font = '700 9px Inter';
-        ctx.fillStyle = '#ff6b6b';
+        ctx.font = '500 9px Basis, sans-serif';
+        ctx.fillStyle = '#c2170a';
         ctx.fillText(o.label, o.x + o.w / 2, oy - 6);
       }
     });
@@ -294,15 +285,15 @@
 
     // ready overlay
     if (state === 'ready') {
-      ctx.fillStyle = 'rgba(2,4,10,0.55)';
+      ctx.fillStyle = 'rgba(255,255,255,0.74)';
       ctx.fillRect(-20, -20, W + 40, H + 40);
-      ctx.fillStyle = '#d4af37';
+      ctx.fillStyle = '#092c61';
       ctx.textAlign = 'center';
-      ctx.font = '800 30px Inter';
+      ctx.font = '500 30px Basis, sans-serif';
       const n = Math.ceil(readyT / 30);
       ctx.fillText(n > 0 ? n : 'GO', W / 2, H / 2 - 6);
-      ctx.fillStyle = '#8a98b8';
-      ctx.font = '500 12px Inter';
+      ctx.fillStyle = '#5b7282';
+      ctx.font = '400 12px Basis, sans-serif';
       ctx.fillText('W jump · S duck · D faster · A slower · Esc quit', W / 2, H / 2 + 22);
       ctx.textAlign = 'left';
     }
@@ -311,18 +302,18 @@
   }
 
   function drawSkyline() {
-    ctx.fillStyle = '#0c1426';
+    ctx.fillStyle = '#d7dee5';
     const base = GROUND;
     for (let i = 0; i < 16; i++) {
       const bx = ((i * 46) - (dist * 0.25 % 46)) - 30;
       const bh = 40 + ((i * 53) % 80);
       ctx.fillRect(bx, base - bh, 34, bh);
-      // lit windows
-      ctx.fillStyle = 'rgba(212,175,55,0.18)';
+      // windows
+      ctx.fillStyle = 'rgba(114,151,197,0.55)';
       for (let wy = base - bh + 8; wy < base - 8; wy += 12) {
         if ((Math.floor(wy) + i) % 3 === 0) ctx.fillRect(bx + 6, wy, 5, 5);
       }
-      ctx.fillStyle = '#0c1426';
+      ctx.fillStyle = '#d7dee5';
     }
   }
 
@@ -348,26 +339,26 @@
       ctx.beginPath(); ctx.moveTo(5, h / 2 - 6); ctx.lineTo(7, h / 2 + 4); ctx.stroke();
     }
 
-    // body — navy suit
-    ctx.fillStyle = '#243a73';
+    // body — Goldman navy suit
+    ctx.fillStyle = '#092c61';
     roundRect(-player.w / 2 + 2, -h / 2 + 8, player.w - 4, h - 10, 5); ctx.fill();
-    // gold tie
-    ctx.fillStyle = '#d4af37';
+    // signature-blue tie
+    ctx.fillStyle = '#7297c5';
     ctx.beginPath();
     ctx.moveTo(0, -h / 2 + 10); ctx.lineTo(-3, -h / 2 + 16); ctx.lineTo(0, h / 2 - 6); ctx.lineTo(3, -h / 2 + 16);
     ctx.closePath(); ctx.fill();
     // lapels
-    ctx.strokeStyle = '#16224a'; ctx.lineWidth = 2;
+    ctx.strokeStyle = '#061d40'; ctx.lineWidth = 2;
     ctx.beginPath(); ctx.moveTo(-2, -h / 2 + 9); ctx.lineTo(-6, -h / 2 + 20); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(2, -h / 2 + 9); ctx.lineTo(6, -h / 2 + 20); ctx.stroke();
 
     // arm + briefcase swinging
     const armSwing = player.grounded ? Math.sin(player.run + 1) * 5 : -8;
-    ctx.strokeStyle = '#243a73'; ctx.lineWidth = 5;
+    ctx.strokeStyle = '#092c61'; ctx.lineWidth = 5;
     ctx.beginPath(); ctx.moveTo(player.w / 2 - 4, -h / 2 + 16); ctx.lineTo(player.w / 2 + 2, -h / 2 + 22 + armSwing); ctx.stroke();
-    ctx.fillStyle = '#7a4a1e';
+    ctx.fillStyle = '#5b4632';
     roundRect(player.w / 2 - 4, -h / 2 + 22 + armSwing, 11, 9, 2); ctx.fill();
-    ctx.fillStyle = '#d4af37'; ctx.fillRect(player.w / 2, -h / 2 + 22 + armSwing, 2, 2);
+    ctx.fillStyle = '#7297c5'; ctx.fillRect(player.w / 2, -h / 2 + 22 + armSwing, 2, 2);
 
     // head
     ctx.fillStyle = '#f2cda0';
