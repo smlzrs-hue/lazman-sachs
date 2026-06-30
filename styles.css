@@ -180,7 +180,7 @@ html, body {
 
 #gameCanvas {
   width: 100%;
-  max-width: 520px;
+  max-width: 720px;
   height: auto;
   display: block;
   border-radius: 4px;

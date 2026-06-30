@@ -92,8 +92,27 @@
 
       <!-- CHART GRID -->
       <section class="grid">
+        <!-- PIE CHART CARD (the secret lives here) -->
+        <div class="card pie-card">
+          <div class="card-head">
+            <h3>Revenue by Division</h3>
+            <span class="pill">Q3</span>
+          </div>
+          <div class="pie-wrap" id="pieWrap">
+            <!-- pie chart gets injected; game canvas takes over this box -->
+            <svg class="pie" id="pieChart" viewBox="0 0 200 200" aria-label="Revenue by division pie chart"></svg>
+            <canvas id="gameCanvas" width="720" height="320" class="hidden"></canvas>
+            <div class="game-hud hidden" id="gameHud">
+              <div class="hud-left">PROFIT: <span id="score">0</span></div>
+              <div class="hud-right">SPEED: <span id="speed">1.0x</span></div>
+            </div>
+            <div class="game-banner hidden" id="gameBanner"></div>
+          </div>
+          <ul class="legend" id="pieLegend"></ul>
+        </div>
+
         <!-- LINE CHART CARD -->
-        <div class="card span-2">
+        <div class="card line-card">
           <div class="card-head">
             <h3>Share Price — $LAZ</h3>
             <span class="pill up">▲ 4.81%</span>
@@ -108,25 +127,6 @@
             <polyline id="lineArea" fill="url(#lineFill)" stroke="none" points="" />
             <polyline id="linePath" fill="none" stroke="#446ea6" stroke-width="2" points="" />
           </svg>
-        </div>
-
-        <!-- PIE CHART CARD (the secret lives here) -->
-        <div class="card pie-card">
-          <div class="card-head">
-            <h3>Revenue by Division</h3>
-            <span class="pill">Q3</span>
-          </div>
-          <div class="pie-wrap" id="pieWrap">
-            <!-- pie chart gets injected; game canvas takes over this box -->
-            <svg class="pie" id="pieChart" viewBox="0 0 200 200" aria-label="Revenue by division pie chart"></svg>
-            <canvas id="gameCanvas" width="520" height="320" class="hidden"></canvas>
-            <div class="game-hud hidden" id="gameHud">
-              <div class="hud-left">PROFIT: <span id="score">0</span></div>
-              <div class="hud-right">SPEED: <span id="speed">1.0x</span></div>
-            </div>
-            <div class="game-banner hidden" id="gameBanner"></div>
-          </div>
-          <ul class="legend" id="pieLegend"></ul>
         </div>
       </section>
 
