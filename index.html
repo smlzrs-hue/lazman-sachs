@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lazman Sachs — Enterprise Analytics Suite</title>
+  <meta name="description" content="Lazman Sachs Global Intelligence Dashboard. Synergizing alpha since whenever." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ===================== TOP BAR ===================== -->
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">LS</span>
+      <div class="brand-text">
+        <strong>LAZMAN&nbsp;SACHS</strong>
+        <small>Global Intelligence Terminal</small>
+      </div>
+    </div>
+    <nav class="topnav">
+      <a class="active">Overview</a>
+      <a>Markets</a>
+      <a>Risk</a>
+      <a>Synergy</a>
+      <a>Compliance</a>
+    </nav>
+    <div class="topbar-right">
+      <span class="status-dot"></span>
+      <span class="status-text">LIVE — Markets Open</span>
+      <div class="avatar" title="S. Lazarus, Managing Director of Vibes">SL</div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- ===================== SIDEBAR ===================== -->
+    <aside class="sidebar">
+      <div class="side-section">Dashboards</div>
+      <a class="side-link active">📊 Executive Overview</a>
+      <a class="side-link">💹 Trading Desk</a>
+      <a class="side-link">🪙 Wealth (Mis)management</a>
+      <a class="side-link">🍦 Frozen Assets Desk</a>
+      <a class="side-link">🎸 Bass Derivatives</a>
+      <div class="side-section">Tools</div>
+      <a class="side-link">🤝 Synergy Optimizer</a>
+      <a class="side-link">📈 Hockey-Stick Generator</a>
+      <a class="side-link">🧾 Plausible Deniability</a>
+      <div class="side-footer">
+        v4.2.0 · Q3 Pre-IPO Build<br />
+        <span class="hint">tip: do not press A+S+D+W together</span>
+      </div>
+    </aside>
+
+    <!-- ===================== MAIN ===================== -->
+    <main class="main">
+      <div class="page-head">
+        <div>
+          <h1>Executive Overview</h1>
+          <p class="subtle">Fiscal year to date · auto-refreshing every 0.0 seconds · numbers are vibes</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn ghost">Export to PDF nobody reads</button>
+          <button class="btn primary">Synergize ↗</button>
+        </div>
+      </div>
+
+      <!-- KPI CARDS -->
+      <section class="kpis">
+        <div class="kpi">
+          <div class="kpi-label">Total Revenue</div>
+          <div class="kpi-value" data-count="884200000" data-prefix="$" data-money="1">$0</div>
+          <div class="kpi-delta up">▲ 23.7% <span>vs. last quarter</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">EBITDA (Believe It Or Not)</div>
+          <div class="kpi-value" data-count="412600000" data-prefix="$" data-money="1">$0</div>
+          <div class="kpi-delta up">▲ 11.2% <span>vs. plan</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Active Clients</div>
+          <div class="kpi-value" data-count="14092">0</div>
+          <div class="kpi-delta down">▼ 2.1% <span>they're onto us</span></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Proprietary Vibes Index™</div>
+          <div class="kpi-value" data-count="9001">0</div>
+          <div class="kpi-delta up">▲ over 9000 <span>immaculate</span></div>
+        </div>
+      </section>
+
+      <!-- CHART GRID -->
+      <section class="grid">
+        <!-- LINE CHART CARD -->
+        <div class="card span-2">
+          <div class="card-head">
+            <h3>Share Price — $LAZ</h3>
+            <span class="pill up">▲ 4.81%</span>
+          </div>
+          <svg class="line-chart" viewBox="0 0 600 240" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="lineFill" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="0%" stop-color="rgba(212,175,55,0.35)" />
+                <stop offset="100%" stop-color="rgba(212,175,55,0)" />
+              </linearGradient>
+            </defs>
+            <polyline id="lineArea" fill="url(#lineFill)" stroke="none" points="" />
+            <polyline id="linePath" fill="none" stroke="#d4af37" stroke-width="2.5" points="" />
+          </svg>
+        </div>
+
+        <!-- PIE CHART CARD (the secret lives here) -->
+        <div class="card pie-card">
+          <div class="card-head">
+            <h3>Revenue by Division</h3>
+            <span class="pill">Q3</span>
+          </div>
+          <div class="pie-wrap" id="pieWrap">
+            <!-- pie chart gets injected; game canvas takes over this box -->
+            <svg class="pie" id="pieChart" viewBox="0 0 200 200" aria-label="Revenue by division pie chart"></svg>
+            <canvas id="gameCanvas" width="520" height="320" class="hidden"></canvas>
+            <div class="game-hud hidden" id="gameHud">
+              <div class="hud-left">PROFIT: <span id="score">0</span></div>
+              <div class="hud-right">SPEED: <span id="speed">1.0x</span></div>
+            </div>
+            <div class="game-banner hidden" id="gameBanner"></div>
+          </div>
+          <ul class="legend" id="pieLegend"></ul>
+        </div>
+      </section>
+
+      <!-- TABLE -->
+      <section class="card table-card">
+        <div class="card-head">
+          <h3>Top Strategic Initiatives</h3>
+          <span class="pill">14 active</span>
+        </div>
+        <table class="data">
+          <thead>
+            <tr><th>Initiative</th><th>Owner</th><th>Status</th><th>Confidence</th><th>Impact ($)</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Project Hockey Stick</td><td>S. Lazarus</td><td><span class="tag green">On Track</span></td><td>Vibes-Based</td><td>$220.0M</td></tr>
+            <tr><td>Operation Move Fast</td><td>Risk Committee</td><td><span class="tag amber">At Risk</span></td><td>Cautiously Smug</td><td>$98.4M</td></tr>
+            <tr><td>Ice Cream Futures (Q4 Churn)</td><td>Frozen Assets</td><td><span class="tag green">On Track</span></td><td>Delicious</td><td>$41.2M</td></tr>
+            <tr><td>Synergy 2.0: The Synergening</td><td>Strategy</td><td><span class="tag amber">Pending</span></td><td>TBD</td><td>$0 (so far)</td></tr>
+            <tr><td>Bass Guitar Collateralized Debt</td><td>S. Lazarus</td><td><span class="tag red">Regulatory Review</span></td><td>Groovy</td><td>$77.7M</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <footer class="page-foot">
+        © Lazman Sachs Holdings. All numbers fabricated for entertainment. Not financial advice. Seriously do not press A+S+D+W.
+      </footer>
+    </main>
+  </div>
+
+  <script src="dashboard.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
