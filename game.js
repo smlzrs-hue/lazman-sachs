@@ -144,17 +144,29 @@
   }
 
   // ---------------- input ----------------
+  const down = new Set();
+  const pressT = {};        // last keydown time for each trigger key
+  const TRIG = ['a', 's', 'd', 'w'];
+  let armed = false;
+
   window.addEventListener('keydown', (e) => {
     const k = e.key.toLowerCase();
     down.add(k);
 
-    if (state === 'off' && down.has('a') && down.has('s') && down.has('d') && down.has('w')) {
-      startGame();
+    if (state === 'off') {
+      // Launch when a, s, d AND w are all pressed within a short window — NOT
+      // necessarily held at the same instant. Many laptop keyboards (membrane
+      // matrices) can't report 4 arbitrary keys held simultaneously (ghosting),
+      // so the old "all four down at once" check never fired on them.
+      if (TRIG.includes(k)) {
+        const now = e.timeStamp || performance.now();
+        pressT[k] = now;
+        if (TRIG.every((key) => now - (pressT[key] || -1e9) <= 900)) startGame();
+      }
       return;
     }
-    if (state === 'off') return;
-    if (['a', 's', 'd', 'w', ' ', 'escape', 'arrowup', 'arrowdown'].includes(k)) e.preventDefault();
 
+    if (['a', 's', 'd', 'w', ' ', 'escape', 'arrowup', 'arrowdown'].includes(k)) e.preventDefault();
     if (k === 'escape') { exitGame(); return; }
     if (armed) return;
 
@@ -167,10 +179,8 @@
   window.addEventListener('keyup', (e) => {
     const k = e.key.toLowerCase();
     down.delete(k);
-    if (armed && !down.has('a') && !down.has('s') && !down.has('d') && !down.has('w')) armed = false;
+    if (armed && !TRIG.some((key) => down.has(key))) armed = false;
   });
-  const down = new Set();
-  let armed = false;
 
   function jump() {
     player.vy = -12.0;
@@ -181,7 +191,8 @@
 
   // ---------------- session control ----------------
   function startGame() {
-    armed = true;
+    // ignore game input only for trigger keys still physically held
+    armed = TRIG.some((key) => down.has(key));
     measure();
     reset();
     state = 'intro';
@@ -205,6 +216,7 @@
     hud.classList.add('hidden');
     banner.classList.add('hidden');
     clearOverlayPos();
+    TRIG.forEach((k) => delete pressT[k]); // fresh window needed to relaunch
   }
   function die(custom) {
     state = 'dead';
