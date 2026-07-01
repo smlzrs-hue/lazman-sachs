@@ -22,12 +22,12 @@
   let W = 900, H = 340, GROUND = 320;
   let left = { x0: 0, x1: 0 }, right = { x0: 0, x1: 0 };
   let platformY = 240, ropeBaseY = 236, manCenterX = 200;
+  let emergeX = 120, emergeY = 150; // the pie chart's centre — where the banker springs out
   let rope = [];
-  let homeRot = 0;
 
   // ---- game state ----
   let state = 'off'; // off | intro | ready | playing | dead
-  let player, obstacles, particles, score, speedMul, baseSpeed, dist, spawnT, frame, shakeT, readyT, introT, donut, chaser;
+  let player, obstacles, particles, score, speedMul, baseSpeed, dist, spawnT, frame, shakeT, readyT, introT, chaser;
 
   const DEATHS = [
     { big: 'MARGIN CALL', sub: 'A man in a vest is on the phone. He is not happy.' },
@@ -56,7 +56,29 @@
     platformY = Math.round(H * 0.64);
     ropeBaseY = platformY - 6;
     manCenterX = right.x0 + Math.min(120, Math.round((right.x1 - right.x0) * 0.30));
+    // where the banker springs from: the centre of the real pie chart in the Revenue cell
+    const pieEl = document.getElementById('pieChart');
+    if (pieEl) {
+      const p = pieEl.getBoundingClientRect();
+      emergeX = Math.round(p.left + p.width / 2 - gr.left);
+      emergeY = Math.round(p.top + p.height / 2 - gr.top);
+    } else {
+      emergeX = (left.x0 + left.x1) / 2; emergeY = Math.round(H * 0.45);
+    }
     buildRope();
+    positionOverlays();
+  }
+
+  // keep the HUD and the game-over banner inside the Share-Price cell only
+  function positionOverlays() {
+    const gw = grid.clientWidth || W;
+    const l = right.x0 + 'px', r = Math.max(0, gw - right.x1) + 'px';
+    hud.style.left = l; hud.style.right = r;
+    banner.style.left = l; banner.style.right = r;
+  }
+  function clearOverlayPos() {
+    hud.style.left = hud.style.right = '';
+    banner.style.left = banner.style.right = '';
   }
 
   // ---------------- the noodly $LAZ line ----------------
@@ -118,7 +140,6 @@
     particles = [];
     score = 0; dist = 0; speedMul = 1; baseSpeed = 4.2; spawnT = 60; frame = 0; shakeT = 0; readyT = 90;
     introT = 0;
-    donut = { cx: (left.x0 + left.x1) / 2, cy: platformY - 64, r: 50, rot: 0, scale: 1, show: false };
     chaser = { x: manCenterX - 70, y: ropeBaseY - 26, r: 26, rot: 0, active: true };
   }
 
@@ -164,17 +185,17 @@
     measure();
     reset();
     state = 'intro';
-    // start the banker standing in the square pie-chart cell
-    player.x = donut.cx - player.w / 2;
-    player.y = platformY;
-    player.grounded = true;
+    // banker starts hidden inside the pie chart in the Revenue cell
+    player.x = emergeX - player.w / 2;
+    player.y = emergeY + player.h / 2;
+    player.grounded = false;
     chaser.active = false;
-    chaser.x = donut.cx; chaser.y = platformY - 30;
+    chaser.x = emergeX; chaser.y = emergeY;
     grid.classList.add('playing');
     canvas.classList.remove('hidden');
     hud.classList.remove('hidden');
-    grid.classList.add('shake');
-    setTimeout(() => grid.classList.remove('shake'), 400);
+    lineCard.classList.add('shake');
+    setTimeout(() => lineCard.classList.remove('shake'), 400);
     loop();
   }
   function exitGame() {
@@ -183,6 +204,7 @@
     canvas.classList.add('hidden');
     hud.classList.add('hidden');
     banner.classList.add('hidden');
+    clearOverlayPos();
   }
   function die(custom) {
     state = 'dead';
@@ -236,57 +258,41 @@
   function loop() {
     if (state === 'off') return;
     frame++;
-    homeRot += 0.01;
     update();
     render();
     requestAnimationFrame(loop);
   }
 
-  // The grand reveal: leap out of the square pie cell, across the gap, onto the
-  // long share-price cell; then the pie chart bounces over to give chase.
+  // The reveal: the banker springs out of the Revenue pie chart and leaps across
+  // the gap into the Share-Price cell — then the pie chart bounces over after him.
+  // The two cells stay separate; only the leapers cross between them.
   function updateIntro() {
     introT++;
-    const cx = donut.cx, cy = donut.cy;
-    const startX = donut.cx, ropeFeet = ropeYat(manCenterX);
-    donut.show = true;
     updateRope();
+    const ropeFeet = ropeYat(manCenterX);
 
-    if (introT <= 40) {
-      // A — hop up into the middle of the pie chart (full flip)
-      const t = introT / 40, e = 1 - (1 - t) * (1 - t);
-      player.x = (startX - player.w / 2) + 0 * e;
-      const baseY = platformY + (cy + 22 - platformY) * e;
-      player.y = baseY - 70 * Math.sin(Math.PI * t);
+    if (introT <= 48) {
+      // A — banker leaps from the pie cell onto the noodly $LAZ line
+      const t = introT / 48, e = t * t * (3 - 2 * t);
+      const fromX = emergeX - player.w / 2, toX = manCenterX - player.w / 2;
+      player.x = fromX + (toX - fromX) * e;
+      const fromY = emergeY + player.h / 2, toY = ropeFeet;
+      player.y = (fromY + (toY - fromY) * e) - 150 * Math.sin(Math.PI * t);
       player.flip = t * Math.PI * 2;
       player.grounded = false;
-      donut.scale = 1; donut.rot += 0.06;
-    } else if (introT <= 86) {
-      // B — LEAP across the gap from the pie cell onto the noodly share-price line
-      const t = (introT - 40) / 46, e = t * t * (3 - 2 * t);
-      const fromX = cx - player.w / 2, toX = manCenterX - player.w / 2;
-      player.x = fromX + (toX - fromX) * e;
-      const fromY = cy + 22, toY = ropeFeet;
-      player.y = (fromY + (toY - fromY) * e) - 120 * Math.sin(Math.PI * t);
-      player.flip = (1 - e) * Math.PI * 2;
-      player.grounded = false;
-      donut.scale = Math.max(0, 1 - t * 1.3);
-      donut.rot += 0.5;
-      if (introT === 86) { for (let i = 0; i < 12; i++) particles.push(puff(manCenterX, ropeFeet, '#7297c5')); applyLoad(manCenterX, 9); }
-    } else if (introT <= 130) {
-      // C — banker now rides the line; the pie chart bounces over after him
+      if (introT === 48) { for (let i = 0; i < 12; i++) particles.push(puff(manCenterX, ropeFeet, '#7297c5')); applyLoad(manCenterX, 9); }
+    } else if (introT <= 100) {
+      // B — banker rides the line; the pie chart bounces out of its cell after him
       player.x = manCenterX - player.w / 2;
       player.y = ropeYat(manCenterX);
-      player.grounded = true; player.flip = 0;
-      player.run += 0.25;
-      donut.scale = 0; donut.show = false;
+      player.grounded = true; player.flip = 0; player.run += 0.25;
       chaser.active = true;
-      const t = (introT - 86) / 44, e = t * t * (3 - 2 * t);
-      const fromX = cx, toX = manCenterX - 74;
+      const t = (introT - 48) / 52, e = t * t * (3 - 2 * t);
+      const fromX = emergeX, toX = manCenterX - 74;
       chaser.x = fromX + (toX - fromX) * e;
       chaser.rot += 0.4;
-      const ride = ropeYat(chaser.x) - chaser.r;
-      chaser.y = ride - 110 * Math.sin(Math.PI * t);
-      if (introT === 130) { for (let i = 0; i < 10; i++) particles.push(puff(chaser.x, ropeYat(chaser.x), '#5b7282')); applyLoad(chaser.x, 9); }
+      chaser.y = (ropeYat(chaser.x) - chaser.r) - 130 * Math.sin(Math.PI * t);
+      if (introT === 100) { for (let i = 0; i < 10; i++) particles.push(puff(chaser.x, ropeYat(chaser.x), '#5b7282')); applyLoad(chaser.x, 9); }
     } else {
       spawnT = 18;
       state = 'playing';
@@ -379,21 +385,22 @@
   // ---------------- rendering ----------------
   function render() {
     ctx.save();
+    ctx.clearRect(0, 0, W, H); // transparent — the Revenue cell keeps showing its real pie chart
     if (shakeT > 0) ctx.translate((Math.random() - 0.5) * shakeT, (Math.random() - 0.5) * shakeT);
 
-    // sky
+    // ===== the game lives entirely inside the Share-Price cell (clipped to it) =====
+    ctx.save();
+    roundRect(right.x0, 0, right.x1 - right.x0, H, 4);
+    ctx.clip();
+
     const g = ctx.createLinearGradient(0, 0, 0, H);
     g.addColorStop(0, '#ffffff'); g.addColorStop(1, '#eef2f6');
     ctx.fillStyle = g;
-    ctx.fillRect(-20, -20, W + 40, H + 40);
+    ctx.fillRect(right.x0 - 4, -4, (right.x1 - right.x0) + 8, H + 8);
 
     drawSkyline();
-    drawHomeCell();   // the square pie-chart cell on the left
-    drawRope();       // the noodly $LAZ line on the right
+    drawRope();
 
-    if (state === 'intro' && donut.show && donut.scale > 0.02) drawDonutAt(donut.cx, donut.cy, donut.r * donut.scale, donut.rot, true);
-
-    // obstacles
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     obstacles.forEach((o) => {
       const oy = obsTop(o);
@@ -407,8 +414,31 @@
     });
     ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
 
-    if (chaser && chaser.active) drawChaser();
-    drawPlayer();
+    // once they've landed, the runners live inside the cell
+    if (state === 'playing' || state === 'dead' || state === 'ready') {
+      if (chaser && chaser.active) drawChaser();
+      drawPlayer();
+    }
+
+    if (state === 'ready') {
+      const cxm = (right.x0 + right.x1) / 2;
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.fillRect(right.x0, 0, right.x1 - right.x0, H);
+      ctx.fillStyle = '#092c61'; ctx.textAlign = 'center';
+      ctx.font = '500 28px Basis, sans-serif';
+      const n = Math.ceil(readyT / 30);
+      ctx.fillText(n > 0 ? n : 'GO', cxm, H / 2 - 6);
+      ctx.fillStyle = '#5b7282'; ctx.font = '400 12px Basis, sans-serif';
+      ctx.fillText('W jump · S duck · D faster · A slower', cxm, H / 2 + 22);
+      ctx.textAlign = 'left';
+    }
+    ctx.restore(); // end Share-Price clip
+
+    // ===== during the intro the leapers cross between the two cells (unclipped) =====
+    if (state === 'intro') {
+      if (chaser && chaser.active) drawChaser();
+      drawPlayer();
+    }
 
     particles.forEach((p) => {
       ctx.globalAlpha = Math.max(0, p.life);
@@ -417,17 +447,6 @@
     });
     ctx.globalAlpha = 1;
 
-    if (state === 'ready') {
-      ctx.fillStyle = 'rgba(255,255,255,0.74)';
-      ctx.fillRect(-20, -20, W + 40, H + 40);
-      ctx.fillStyle = '#092c61'; ctx.textAlign = 'center';
-      ctx.font = '500 30px Basis, sans-serif';
-      const n = Math.ceil(readyT / 30);
-      ctx.fillText(n > 0 ? n : 'GO', W / 2, H / 2 - 6);
-      ctx.fillStyle = '#5b7282'; ctx.font = '400 12px Basis, sans-serif';
-      ctx.fillText('W jump · S duck · D faster · A slower · Esc quit', W / 2, H / 2 + 22);
-      ctx.textAlign = 'left';
-    }
     ctx.restore();
   }
 
@@ -444,22 +463,6 @@
         if ((Math.floor(wy) + i) % 3 === 0) ctx.fillRect(bx + 6, wy, 5, 5);
       }
       ctx.fillStyle = '#d7dee5';
-    }
-  }
-
-  // the left square cell: a little platform with the Revenue pie perched on it
-  function drawHomeCell() {
-    const x0 = left.x0 + 6, x1 = left.x1 - 6;
-    ctx.fillStyle = '#eef2f6';
-    ctx.fillRect(x0, platformY, x1 - x0, H - platformY);
-    ctx.strokeStyle = '#092c61'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(x0, platformY); ctx.lineTo(x1, platformY); ctx.stroke();
-    ctx.fillStyle = 'rgba(91,114,130,0.55)';
-    ctx.font = '11px Basis, sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText('REVENUE', (x0 + x1) / 2, platformY + 20);
-    ctx.textAlign = 'left';
-    if (state === 'playing' || state === 'dead' || state === 'ready') {
-      drawDonutAt((x0 + x1) / 2, platformY - 42, 32, homeRot, false);
     }
   }
 

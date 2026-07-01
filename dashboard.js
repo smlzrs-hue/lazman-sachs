@@ -86,16 +86,16 @@
     hole.setAttribute('fill', '#ffffff');
     pie.appendChild(hole);
     const t1 = document.createElementNS(ns, 'text');
-    t1.setAttribute('x', cx); t1.setAttribute('y', cy - 1);
+    t1.setAttribute('x', cx); t1.setAttribute('y', cy - 2);
     t1.setAttribute('text-anchor', 'middle'); t1.setAttribute('fill', '#121212');
-    t1.setAttribute('font-size', '21'); t1.setAttribute('font-weight', '500');
+    t1.setAttribute('font-size', '16'); t1.setAttribute('font-weight', '500');
     t1.setAttribute('font-family', 'Basis Mono, monospace');
     t1.textContent = '$884M';
     pie.appendChild(t1);
     const t2 = document.createElementNS(ns, 'text');
-    t2.setAttribute('x', cx); t2.setAttribute('y', cy + 16);
+    t2.setAttribute('x', cx); t2.setAttribute('y', cy + 13);
     t2.setAttribute('text-anchor', 'middle'); t2.setAttribute('fill', '#5b7282');
-    t2.setAttribute('font-size', '9.5'); t2.setAttribute('letter-spacing', '0.5');
+    t2.setAttribute('font-size', '7.5'); t2.setAttribute('letter-spacing', '0.5');
     t2.textContent = 'TOTAL REVENUE';
     pie.appendChild(t2);
 
