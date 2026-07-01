@@ -15,6 +15,7 @@
   const banner = document.getElementById('gameBanner');
   const scoreEl = document.getElementById('score');
   const speedEl = document.getElementById('speed');
+  const pieEl = document.getElementById('pieChart');
   if (!canvas || !grid) return;
   const ctx = canvas.getContext('2d');
 
@@ -145,7 +146,6 @@
 
   // ---------------- input ----------------
   const down = new Set();
-  const pressT = {};        // last keydown time for each trigger key
   const TRIG = ['a', 's', 'd', 'w'];
   let armed = false;
 
@@ -154,14 +154,11 @@
     down.add(k);
 
     if (state === 'off') {
-      // Launch when a, s, d AND w are all pressed within a short window — NOT
-      // necessarily held at the same instant. Many laptop keyboards (membrane
-      // matrices) can't report 4 arbitrary keys held simultaneously (ghosting),
-      // so the old "all four down at once" check never fired on them.
-      if (TRIG.includes(k)) {
-        const now = e.timeStamp || performance.now();
-        pressT[k] = now;
-        if (TRIG.every((key) => now - (pressT[key] || -1e9) <= 900)) startGame();
+      // Launch by HOLDING the spacebar: the pie spins up at 1s, and the leap
+      // fires at 3s. (Works on any keyboard — a single held key never ghosts.)
+      if (e.code === 'Space' || k === ' ' || k === 'spacebar') {
+        e.preventDefault();
+        startCharge();
       }
       return;
     }
@@ -179,8 +176,53 @@
   window.addEventListener('keyup', (e) => {
     const k = e.key.toLowerCase();
     down.delete(k);
+    if (state === 'off' && (e.code === 'Space' || k === ' ' || k === 'spacebar')) { cancelCharge(true); return; }
     if (armed && !TRIG.some((key) => down.has(key))) armed = false;
   });
+
+  // ---------------- spacebar charge-up ----------------
+  // Hold space → (1s) the pie chart winds up spinning → (3s) the banker leaps out.
+  let charging = false, chargeStart = 0, chargeRAF = 0, pieRot = 0, chargeLast = 0;
+  const CHARGE_MS = 3000, SPIN_AT = 1000;
+
+  function startCharge() {
+    if (charging || state !== 'off') return;
+    charging = true;
+    chargeStart = chargeLast = performance.now();
+    pieRot = 0;
+    if (pieEl) { pieEl.style.transition = ''; pieEl.style.transformOrigin = 'center'; }
+    chargeRAF = requestAnimationFrame(chargeTick);
+  }
+  function chargeTick(now) {
+    if (!charging) return;
+    const held = now - chargeStart;
+    const dt = now - chargeLast; chargeLast = now;
+    if (held >= SPIN_AT && pieEl) {
+      // spin accelerates from 1s up to 3s
+      const ramp = Math.min(held, CHARGE_MS) - SPIN_AT;      // 0 → 2000
+      const spd = 0.15 + (ramp / (CHARGE_MS - SPIN_AT)) * 1.7; // deg per ms
+      pieRot += spd * dt;
+      pieEl.style.transform = 'rotate(' + pieRot.toFixed(1) + 'deg)';
+    }
+    if (held >= CHARGE_MS) {
+      charging = false;
+      if (pieEl) { pieEl.style.transition = ''; pieEl.style.transform = ''; } // hand off; pie back to normal
+      startGame();
+      return;
+    }
+    chargeRAF = requestAnimationFrame(chargeTick);
+  }
+  function cancelCharge(resetPie) {
+    if (!charging) return;
+    charging = false;
+    if (chargeRAF) cancelAnimationFrame(chargeRAF);
+    chargeRAF = 0;
+    if (resetPie && pieEl) {
+      pieEl.style.transition = 'transform 0.4s ease-out';
+      pieEl.style.transform = 'rotate(0deg)';
+      setTimeout(() => { if (pieEl) { pieEl.style.transition = ''; pieEl.style.transform = ''; } }, 450);
+    }
+  }
 
   function jump() {
     player.vy = -12.0;
